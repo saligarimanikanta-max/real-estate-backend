@@ -1,0 +1,233 @@
+{
+  "info": {
+    "name": "P09 - Real Estate Property Listing & Enquiry Portal",
+    "description": "Full endpoint coverage for the CIA-3 backend. Set the {{baseUrl}} collection variable, then run Auth > Register/Login requests first to populate {{buyerToken}}, {{agentToken}} and {{adminToken}} via their Tests scripts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "buyerToken", "value": "" },
+    { "key": "agentToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "propertyId", "value": "" },
+    { "key": "agentId", "value": "" },
+    { "key": "enquiryId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Buyer",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) { pm.collectionVariables.set('buyerToken', pm.response.json().data.token); }"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Bhavana Buyer\",\n  \"email\": \"buyer1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"buyer\",\n  \"phone\": \"9999900001\"\n}" }
+          }
+        },
+        {
+          "name": "Register Agent",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) { const d = pm.response.json().data; pm.collectionVariables.set('agentToken', d.token); pm.collectionVariables.set('agentId', d.user._id); }"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Arjun Agent\",\n  \"email\": \"agent1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"agent\",\n  \"phone\": \"9999900002\"\n}" }
+          }
+        },
+        {
+          "name": "Register Missing Fields (validation demo - expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"not-an-email\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 200) { pm.collectionVariables.set('buyerToken', pm.response.json().data.token); }"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"buyer1@example.com\",\n  \"password\": \"password123\"\n}" }
+          }
+        },
+        {
+          "name": "Get My Profile (protected - expect 401 without token)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Create Property (agent - fails until admin verifies agent, expect 403)",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) { pm.collectionVariables.set('propertyId', pm.response.json().data.property._id); }"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/properties",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"3BHK Sea View Apartment\",\n  \"description\": \"Spacious apartment with sea view\",\n  \"type\": \"sale\",\n  \"propertyType\": \"apartment\",\n  \"price\": 8500000,\n  \"city\": \"Bengaluru\",\n  \"locality\": \"Indiranagar\",\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"areaSqft\": 1450,\n  \"images\": [\"https://example.com/img1.jpg\"]\n}" }
+          }
+        },
+        {
+          "name": "Search Properties (public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/properties/search?city=Bengaluru&minPrice=1000000&maxPrice=10000000&bedrooms=2&page=1&limit=10"
+          }
+        },
+        {
+          "name": "Listings Grouped By City (public, aggregation)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/properties/grouped-by-city" }
+        },
+        {
+          "name": "Properties By Location (public)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/properties/location/Bengaluru" }
+        },
+        {
+          "name": "Get Property By Id (public)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/properties/{{propertyId}}" }
+        },
+        {
+          "name": "Get Property - Invalid Id (expect 404, not a crash)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/properties/not-a-valid-id" }
+        },
+        {
+          "name": "Update Property (owner agent only)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/properties/{{propertyId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"price\": 8250000\n}" }
+          }
+        },
+        {
+          "name": "Verify Property (admin only)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/properties/{{propertyId}}/verify",
+            "body": { "mode": "raw", "raw": "{\n  \"action\": \"approve\",\n  \"remarks\": \"Looks good\"\n}" }
+          }
+        },
+        {
+          "name": "Update Property Status - valid transition",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/properties/{{propertyId}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Under Negotiation\"\n}" }
+          }
+        },
+        {
+          "name": "Update Property Status - invalid transition (expect 409)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/properties/{{propertyId}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Available\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Property",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/properties/{{propertyId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enquiries",
+      "item": [
+        {
+          "name": "Submit Enquiry (buyer)",
+          "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) { pm.collectionVariables.set('enquiryId', pm.response.json().data.enquiry._id); }"], "type": "text/javascript" } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": "{{baseUrl}}/enquiries",
+            "body": { "mode": "raw", "raw": "{\n  \"propertyId\": \"{{propertyId}}\",\n  \"message\": \"Is this property still available? I'd like to schedule a visit.\"\n}" }
+          }
+        },
+        { "name": "My Enquiries (buyer)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }], "url": "{{baseUrl}}/enquiries/my" } },
+        { "name": "Agent Leads (agent)", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{agentToken}}" }], "url": "{{baseUrl}}/enquiries/agent" } },
+        {
+          "name": "Update Enquiry Status (agent)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{agentToken}}" }],
+            "url": "{{baseUrl}}/enquiries/{{enquiryId}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Contacted\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favourites",
+      "item": [
+        {
+          "name": "Add Favourite (buyer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": "{{baseUrl}}/favourites",
+            "body": { "mode": "raw", "raw": "{\n  \"propertyId\": \"{{propertyId}}\"\n}" }
+          }
+        },
+        { "name": "Add Duplicate Favourite (expect 409)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{buyerToken}}" }], "url": "{{baseUrl}}/favourites", "body": { "mode": "raw", "raw": "{\n  \"propertyId\": \"{{propertyId}}\"\n}" } } },
+        { "name": "My Favourites", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }], "url": "{{baseUrl}}/favourites" } },
+        { "name": "Remove Favourite", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{buyerToken}}" }], "url": "{{baseUrl}}/favourites/{{propertyId}}" } }
+      ]
+    },
+    {
+      "name": "Agents",
+      "item": [
+        { "name": "Get Agent Public Profile", "request": { "method": "GET", "url": "{{baseUrl}}/agents/{{agentId}}" } },
+        {
+          "name": "Rate Agent (buyer, requires prior enquiry)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{buyerToken}}" }],
+            "url": "{{baseUrl}}/agents/{{agentId}}/rate",
+            "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Very responsive and helpful\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        { "name": "Pending Agents", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/agents/pending" } },
+        { "name": "Verify Agent", "request": { "method": "PUT", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/agents/{{agentId}}/verify" } },
+        { "name": "Pending/Flagged Properties", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/properties/pending" } },
+        {
+          "name": "Flag Property",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/admin/properties/{{propertyId}}/flag",
+            "body": { "mode": "raw", "raw": "{\n  \"flagged\": true\n}" }
+          }
+        },
+        { "name": "Top Enquired Properties Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/reports/top-properties" } },
+        { "name": "Agent Performance Report", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": "{{baseUrl}}/admin/reports/agent-performance" } }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [{ "name": "API Health", "request": { "method": "GET", "url": "{{baseUrl}}/health" } }]
+    }
+  ]
+}
