@@ -4,19 +4,19 @@ CIA-3 backend project — Advanced JavaScript Backend Frameworks (Node.js \& Exp
 
 ## Team Details
 
-|S.No|Student Name|Roll No.|Department|Section|
-|-|-|-|-|-|
-|1|Kevin Richaard G|2463034|ADSE|5BTAIML|
-|2|Kotte Lavanya|2463035|ADSE|5BTAIML|
-|3|M Manvanth|2463037|ADSE|5BTAIML|
-|4|Naveen Tijo|2463039|ADSE|5BTAIML|
+| S.No | Student Name | Roll No. | Department | Section |
+|------|--------------|----------|------------|---------|
+| 1 | S. Manikanta Reddy | 2462140 | ADSE | 5BTCSAIML-B |
+| 2 | Sandra Shaju | 2462143 | ADSE | 5BTCSAIML-B |
+| 3 | Sharon Cheriyan | 2462146 | ADSE | 5BTCSAIML-B |
+| 4 | Shrayana K S | 2462149 | ADSE | 5BTCSAIML-B |
 
 **Project Code \& Title:** P09 — Real Estate Property Listing \& Enquiry Portal
 **Course:** Advanced JavaScript Backend Frameworks (Node.js \& Express JS)
 **Batch:** 9
 **Semester:** 5th Semester
 
-**GitHub Repository:** [https://github.com/manvanth102/Real-Estate-Property-Portal](https://github.com/manvanth102/Real-Estate-Property-Portal)
+**GitHub Repository:** [Real Estate Backend](https://github.com/saligarimanikanta-max/real-estate-backend)
 
 ## Problem Statement
 
