@@ -78,7 +78,15 @@ postman\_collection.json -> full endpoint coverage, importable into Postman
    node scripts/createAdmin.js "Admin Name" admin@example.com StrongPass123
    ```
 
-5. **Import `postman\_collection.json`** into Postman, set the collection variable `baseUrl` (defaults to `http://localhost:5000/api`), and run the **Auth → Register Buyer / Register Agent** requests first — their Tests scripts automatically save `buyerToken` / `agentToken` / `agentId` as collection variables for every later request. Log in as the admin you created above and manually paste that token into the `adminToken` variable.
+5. **(Optional) Seed sample data with photos for presentation/demo:**
+
+```bash
+npm run seed
+```
+
+Populates sample verified agents, test buyers, and realistic properties with photos across Bangalore, Mumbai, Hyderabad, and Pune.
+
+6. **Import `postman\_collection.json`** into Postman, set the collection variable `baseUrl` (defaults to `http://localhost:5000/api`), and run the **Auth → Register Buyer / Register Agent** requests first — their Tests scripts automatically save `buyerToken` / `agentToken` / `agentId` as collection variables for every later request. Log in as the admin you created above and manually paste that token into the `adminToken` variable.
 
 ## Suggested Demo Walkthrough (matches the grading rubric's "walk it end-to-end" note)
 
@@ -212,7 +220,7 @@ These are the non-CRUD rules the grading rubric specifically calls out ("correct
 * Auth is a self-built JWT flow; no social login.
 * Single currency/locale, single time zone assumed.
 * No pagination on a few smaller admin list endpoints (pending agents/properties) since those lists are expected to stay small; `properties/search` is paginated.
-* A frontend was optional for this CIA component and is not included — the Postman collection is the primary way to demonstrate every endpoint.
+* A lightweight modern frontend is included under `real-estate-frontend/` to visually demonstrate user flows alongside the full Postman collection.
 
 ## Postman Collection
 

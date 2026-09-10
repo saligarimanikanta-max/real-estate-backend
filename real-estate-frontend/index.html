@@ -3,74 +3,368 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EstateHub | Real Estate</title>
+  <title>EstateHub | Real Estate Property & Enquiry Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav>
-    <div class="brand">Estate<span>Hub</span></div>
-    <div class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#properties">Properties</a>
-      <button id="loginBtn" class="outline">Login</button>
-      <button id="logoutBtn" class="outline hidden">Logout</button>
-    </div>
-  </nav>
+  <!-- Global Navigation -->
+  <header class="header">
+    <nav class="navbar">
+      <a href="#home" class="brand">
+        <span class="brand-icon">🏛️</span>
+        <span class="brand-text">Estate<span>Hub</span></span>
+      </a>
 
-  <header id="home" class="hero">
-    <div>
-      <p class="eyebrow">SMART REAL ESTATE PLATFORM</p>
-      <h1>Find a place<br><span>you can call home.</span></h1>
-      <p class="hero-text">Search verified properties, explore listings and connect with agents through our real-estate management API.</p>
-      <a href="#properties" class="primary">Explore Properties</a>
-    </div>
+      <div class="nav-menu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#properties" class="nav-link">Explore Properties</a>
+        <button id="navFavouritesBtn" class="nav-btn hidden">
+          <span>♥</span> Favourites (<span id="favCount">0</span>)
+        </button>
+        <button id="navEnquiriesBtn" class="nav-btn hidden">
+          <span>📋</span> <span id="enquiryNavLabel">Enquiries</span>
+        </button>
+        <button id="navAddPropertyBtn" class="nav-btn primary hidden">
+          <span>+</span> List Property
+        </button>
+      </div>
+
+      <div class="nav-user-actions">
+        <!-- Logged out view -->
+        <div id="authActionsLoggedOut">
+          <button id="openAuthModalBtn" class="btn btn-outline">Sign In / Register</button>
+        </div>
+
+        <!-- Logged in view -->
+        <div id="authActionsLoggedIn" class="user-profile-badge hidden">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-meta">
+            <span class="user-name" id="userName">User</span>
+            <span class="user-role-pill" id="userRole">Buyer</span>
+          </div>
+          <button id="logoutBtn" class="btn btn-icon" title="Logout">🚪</button>
+        </div>
+      </div>
+    </nav>
   </header>
 
-  <section id="properties" class="section">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">VERIFIED LISTINGS</p>
-        <h2>Featured Properties</h2>
+  <!-- Hero Section -->
+  <section id="home" class="hero-section">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="badge-pill">✨ VERIFIED REAL ESTATE PORTAL</div>
+        <h1 class="hero-title">
+          Find your perfect space, <br>
+          <span class="gradient-text">curated & verified.</span>
+        </h1>
+        <p class="hero-subtitle">
+          Search luxury apartments, scenic villas, modern houses, and premium plots across top Indian cities. Connect directly with verified agents with full transparency.
+        </p>
+        <div class="hero-actions">
+          <a href="#properties" class="btn btn-primary btn-lg">Browse Listings</a>
+          <button id="heroPostPropBtn" class="btn btn-outline-white btn-lg">Post a Property</button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Admin Verified</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num">Direct</span>
+            <span class="stat-label">Agent Inquiries</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num">Zero</span>
+            <span class="stat-label">Hidden Brokerage</span>
+          </div>
+        </div>
       </div>
-      <button id="refreshBtn" class="outline">Refresh</button>
     </div>
-
-    <div class="filters">
-      <input id="city" placeholder="City">
-      <select id="propertyType">
-        <option value="">Property type</option>
-<option value="apartment">Apartment</option>
-<option value="independent-house">House</option>
-<option value="villa">Villa</option>
-<option value="plot">Plot</option>
-      </select>
-      <input id="minPrice" type="number" placeholder="Min price">
-      <input id="maxPrice" type="number" placeholder="Max price">
-      <button id="searchBtn" class="primary">Search</button>
-    </div>
-
-    <div id="status" class="status"></div>
-    <div id="propertyGrid" class="grid"></div>
   </section>
 
-  <div id="loginModal" class="modal hidden">
-    <div class="modal-card">
-      <button class="close" onclick="closeModal()">×</button>
-      <h2>Welcome back</h2>
-      <p>Login to use favourites and enquiries.</p>
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button id="doLogin" class="primary full">Login</button>
-      <div id="loginMessage" class="message"></div>
+  <!-- Main Properties Section -->
+  <main id="properties" class="section-container">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">CURATED SPACES</p>
+        <h2 class="section-title">Verified Properties for You</h2>
+      </div>
+      <div class="header-tools">
+        <button id="refreshBtn" class="btn btn-outline btn-sm" title="Reload properties">
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Enhanced Filter Controls -->
+    <div class="search-panel">
+      <div class="filter-row">
+        <!-- City filter -->
+        <div class="filter-field">
+          <label for="city">City</label>
+          <input id="city" type="text" placeholder="e.g. Bangalore, Mumbai" />
+        </div>
+
+        <!-- Listing Type: Sale vs Rent -->
+        <div class="filter-field">
+          <label for="listingType">Purpose</label>
+          <select id="listingType">
+            <option value="">All Types</option>
+            <option value="sale">For Sale</option>
+            <option value="rent">For Rent</option>
+          </select>
+        </div>
+
+        <!-- Property Type -->
+        <div class="filter-field">
+          <label for="propertyType">Category</label>
+          <select id="propertyType">
+            <option value="">All Categories</option>
+            <option value="apartment">Apartment</option>
+            <option value="villa">Villa</option>
+            <option value="independent-house">Independent House</option>
+            <option value="plot">Residential Plot</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+
+        <!-- Bedrooms Filter -->
+        <div class="filter-field">
+          <label for="bedrooms">Bedrooms</label>
+          <select id="bedrooms">
+            <option value="">Any BHK</option>
+            <option value="1">1+ BHK</option>
+            <option value="2">2+ BHK</option>
+            <option value="3">3+ BHK</option>
+            <option value="4">4+ BHK</option>
+          </select>
+        </div>
+
+        <!-- Min Price -->
+        <div class="filter-field">
+          <label for="minPrice">Min Price (₹)</label>
+          <input id="minPrice" type="number" placeholder="Min" min="0" />
+        </div>
+
+        <!-- Max Price -->
+        <div class="filter-field">
+          <label for="maxPrice">Max Price (₹)</label>
+          <input id="maxPrice" type="number" placeholder="Max" min="0" />
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="filter-actions">
+          <button id="searchBtn" class="btn btn-primary full-width">Search</button>
+          <button id="resetFilterBtn" class="btn btn-outline full-width">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status & Results Count -->
+    <div class="results-header">
+      <div id="status" class="results-status">Loading listings...</div>
+    </div>
+
+    <!-- Properties Grid -->
+    <div id="propertyGrid" class="properties-grid"></div>
+  </main>
+
+  <!-- Authentication Modal (Login & Register Tabs) -->
+  <div id="authModal" class="modal-backdrop hidden">
+    <div class="modal-card auth-modal-card">
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+
+      <div class="auth-tabs">
+        <button id="tabLogin" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button id="tabRegister" class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input id="loginEmail" type="email" placeholder="name@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" placeholder="Enter password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary full-width btn-lg">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="regName">Full Name</label>
+          <input id="regName" type="text" placeholder="e.g. Vikram Sharma" required />
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email Address</label>
+          <input id="regEmail" type="email" placeholder="e.g. vikram@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="regPhone">Phone Number</label>
+          <input id="regPhone" type="tel" placeholder="e.g. +91 98765 43210" />
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password (minimum 6 characters)</label>
+          <input id="regPassword" type="password" placeholder="Choose a secure password" minlength="6" required autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="regRole">Account Type</label>
+          <select id="regRole" required>
+            <option value="buyer">Buyer / Tenant</option>
+            <option value="agent">Real Estate Agent</option>
+          </select>
+          <small class="form-hint">Agents require admin approval before creating public listings.</small>
+        </div>
+        <button type="submit" class="btn btn-primary full-width btn-lg">Create Account</button>
+      </form>
+
+      <div id="authMessage" class="form-feedback"></div>
     </div>
   </div>
 
-  <div id="detailModal" class="modal hidden">
-    <div class="modal-card wide">
-      <button class="close" onclick="closeDetail()">×</button>
-      <div id="detailContent"></div>
+  <!-- Property Detail Modal -->
+  <div id="detailModal" class="modal-backdrop hidden">
+    <div class="modal-card modal-detail-card">
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+      <div id="detailContent" class="detail-body"></div>
     </div>
   </div>
+
+  <!-- Favourites Modal -->
+  <div id="favouritesModal" class="modal-backdrop hidden">
+    <div class="modal-card modal-wide">
+      <button class="modal-close" onclick="closeFavouritesModal()">✕</button>
+      <div class="modal-header">
+        <h3 class="modal-title">Your Saved Favourites</h3>
+        <p class="modal-subtitle">Keep track of properties you love</p>
+      </div>
+      <div id="favouritesList" class="favourites-list-container">
+        <p class="empty-state">Loading your saved properties...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enquiries & Agent Leads Modal -->
+  <div id="enquiriesModal" class="modal-backdrop hidden">
+    <div class="modal-card modal-wide">
+      <button class="modal-close" onclick="closeEnquiriesModal()">✕</button>
+      <div class="modal-header">
+        <h3 id="enquiriesModalTitle" class="modal-title">Enquiry History</h3>
+        <p id="enquiriesModalSubtitle" class="modal-subtitle">Track conversations and status</p>
+      </div>
+      <div id="enquiriesList" class="enquiries-list-container">
+        <p class="empty-state">Loading records...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Add Property Modal -->
+  <div id="addPropertyModal" class="modal-backdrop hidden">
+    <div class="modal-card modal-wide">
+      <button class="modal-close" onclick="closeAddPropertyModal()">✕</button>
+      <div class="modal-header">
+        <h3 class="modal-title">List a New Property</h3>
+        <p class="modal-subtitle">Publish a verified real estate listing to EstateHub</p>
+      </div>
+      <form id="addPropertyForm" onsubmit="handleCreateProperty(event)">
+        <div class="form-grid">
+          <div class="form-group full-span">
+            <label for="propTitle">Property Title *</label>
+            <input id="propTitle" type="text" placeholder="e.g. Spacious 3BHK Penthouse with Lake View" required />
+          </div>
+
+          <div class="form-group">
+            <label for="propType">Purpose *</label>
+            <select id="propType" required>
+              <option value="sale">For Sale</option>
+              <option value="rent">For Rent</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="propCategory">Property Category *</label>
+            <select id="propCategory" required>
+              <option value="apartment">Apartment</option>
+              <option value="villa">Villa</option>
+              <option value="independent-house">Independent House</option>
+              <option value="plot">Plot</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="propPrice">Price (₹) *</label>
+            <input id="propPrice" type="number" min="0" placeholder="e.g. 7500000" required />
+          </div>
+
+          <div class="form-group">
+            <label for="propCity">City *</label>
+            <input id="propCity" type="text" placeholder="e.g. Bangalore" required />
+          </div>
+
+          <div class="form-group">
+            <label for="propLocality">Locality</label>
+            <input id="propLocality" type="text" placeholder="e.g. Koramangala" />
+          </div>
+
+          <div class="form-group">
+            <label for="propBedrooms">Bedrooms</label>
+            <input id="propBedrooms" type="number" min="0" value="2" />
+          </div>
+
+          <div class="form-group">
+            <label for="propBathrooms">Bathrooms</label>
+            <input id="propBathrooms" type="number" min="0" value="2" />
+          </div>
+
+          <div class="form-group">
+            <label for="propArea">Area (sq. ft)</label>
+            <input id="propArea" type="number" min="0" placeholder="e.g. 1450" />
+          </div>
+
+          <div class="form-group full-span">
+            <label for="propImageUrl">Image URL (Direct photo link)</label>
+            <input id="propImageUrl" type="url" placeholder="https://images.unsplash.com/..." />
+            <small class="form-hint">Provide an online image link (e.g. from Unsplash) to showcase your property.</small>
+          </div>
+
+          <div class="form-group full-span">
+            <label for="propDescription">Detailed Description</label>
+            <textarea id="propDescription" rows="4" placeholder="Highlight key features, amenities, nearby schools or landmarks..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAddPropertyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Listing for Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        🏛️ Estate<span>Hub</span>
+      </div>
+      <p class="footer-tagline">
+        P09 — Real Estate Property Listing & Enquiry Portal | Advanced JavaScript Backend Frameworks (Node.js & Express JS)
+      </p>
+      <div class="footer-copy">
+        © 2026 EstateHub Portal. All rights reserved.
+      </div>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
