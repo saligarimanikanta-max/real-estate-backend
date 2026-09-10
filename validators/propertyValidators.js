@@ -12,7 +12,16 @@ const createPropertyValidator = [
   body("bedrooms").optional().isInt({ min: 0 }).withMessage("Bedrooms must be a non-negative integer"),
   body("bathrooms").optional().isInt({ min: 0 }).withMessage("Bathrooms must be a non-negative integer"),
   body("areaSqft").optional().isFloat({ min: 0 }).withMessage("Area must be a positive number"),
-  body("images").optional().isArray().withMessage("Images must be an array of URLs"),
+  body("images")
+  .optional()
+  .isArray()
+  .withMessage("Images must be an array of URLs")
+  .custom((images) => {
+    if (!images.every((image) => typeof image === "string" && /^https?:\/\/.+/.test(image))) {
+      throw new Error("Images must contain valid HTTP/HTTPS URLs");
+    }
+    return true;
+  }),
 ];
 
 const updatePropertyValidator = [
