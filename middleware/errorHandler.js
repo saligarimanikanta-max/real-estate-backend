@@ -42,8 +42,13 @@ const errorHandler = (err, req, res, next) => {
   // Duplicate key (e.g. duplicate email, or a duplicate favourite)
   if (err.code === 11000) {
     statusCode = 409;
-    const field = Object.keys(err.keyValue || {}).join(", ");
-    message = `Duplicate value for field(s): ${field}`;
+    const fields = Object.keys(err.keyValue || {});
+
+    message =
+      fields.length > 0
+        ? `Duplicate value for field(s): ${fields.join(", ")}`
+        : "A record with the same unique value already exists";
+
     errorCode = "DUPLICATE_KEY";
   }
 
